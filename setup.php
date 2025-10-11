@@ -53,7 +53,7 @@ function plugin_init_statecheck() {
                          
 	if ($DB->TableExists("glpi_plugin_statecheck_tables")) {
 		$query = "select * from glpi_plugin_statecheck_tables";
-		if ($result=$DB->query($query)) {
+		if ($result=$DB->doQuery($query)) {
 			$checkitems = [];
 			while ($data=$DB->fetchAssoc($result)) {
 				$itemtype = $data['class'];
@@ -97,14 +97,14 @@ function plugin_version_statecheck() {
 
    return [
       'name' => _n('Statecheck Rule', 'Statecheck Rules', 2, 'statecheck'),
-      'version' => '2.4.4',
+      'version' => '2.4.5',
       'author'  => "Eric Feron",
       'license' => 'GPLv2+',
       'homepage'=> 'https://github.com/ericferon/glpi-statecheck',
       'requirements' => [
          'glpi' => [
             'min' => '10.0.17',
-            'dev' => false
+            'max' => '11.0.99'
          ]
       ]
    ];
@@ -114,9 +114,9 @@ function plugin_version_statecheck() {
 // Optional : check prerequisites before install : may print errors or add to message after redirect
 function plugin_statecheck_check_prerequisites() {
    if (version_compare(GLPI_VERSION, '10.0', 'lt')
-       || version_compare(GLPI_VERSION, '10.1', 'ge')) {
+       || version_compare(GLPI_VERSION, '11.9', 'ge')) {
       if (method_exists('Plugin', 'messageIncompatible')) {
-         echo Plugin::messageIncompatible('core', '10.0');
+         echo Plugin::messageIncompatible('core', '11.0');
       }
       return false;
    }
@@ -124,7 +124,7 @@ function plugin_statecheck_check_prerequisites() {
 }
 
 // Uninstall process for plugin : need to return true if succeeded : may display messages or add to message after redirect
-function plugin_statecheck_check_config() {
+/*function plugin_statecheck_check_config() {
    return true;
 }
 
@@ -132,7 +132,7 @@ function plugin_datainjection_migratetypes_statecheck($types) {
    $types[2400] = 'PluginStatecheckRule';
    return $types;
 }
-
+*/
 function hook_pre_item_form(array $params) {
 	global $DB, $_SERVER;
 	$plugin = new Plugin();
@@ -159,7 +159,7 @@ function hook_pre_item_form(array $params) {
 			// get current state (or 0 if new record)
 			$targetstates_id = 0;
 			$query = "SELECT `statetable` FROM `glpi_plugin_statecheck_tables` WHERE `frontname` = '$frontname'";
-			if ($resultstate=$DB->query($query)) {
+			if ($resultstate=$DB->doQuery($query)) {
                 while ($datastate=$DB->fetchAssoc($resultstate)) {
 					$statefield = empty($datastate['statetable'])?'':substr($datastate['statetable'], 5).'_id';
 				}
@@ -169,7 +169,7 @@ function hook_pre_item_form(array $params) {
 			
             $query = "SELECT `glpi_plugin_statecheck_tables`.`id`, `glpi_plugin_statecheck_rules`.`plugin_statecheck_tables_id`, `glpi_plugin_statecheck_rules`.`is_active_warn_popup` as isActiveWarnPopup FROM `glpi_plugin_statecheck_tables`, `glpi_plugin_statecheck_rules` WHERE `glpi_plugin_statecheck_tables`.`id` = `glpi_plugin_statecheck_rules`.`plugin_statecheck_tables_id` AND `glpi_plugin_statecheck_tables`.`frontname` = '".$frontname."' AND `glpi_plugin_statecheck_rules`.`plugin_statecheck_targetstates_id` = '$targetstates_id'";
 
-		    if ($resultstate=$DB->query($query)) {
+		    if ($resultstate=$DB->doQuery($query)) {
 				$isActiveWarnPopup = FALSE;
                 while ($datastate=$DB->fetchAssoc($resultstate)) {
                     $isActiveWarnPopup = $isActiveWarnPopup || $datastate['isActiveWarnPopup'];
@@ -206,7 +206,7 @@ function hook_post_item_form(array $params) {
             }
 
 			$query = "select * from glpi_plugin_statecheck_tables where frontname = '".$frontname."'";
-			if ($result=$DB->query($query)) {
+			if ($result=$DB->doQuery($query)) {
 				if ($DB->fetchAssoc($result)) {
 					//$classname = get_class($params['item']);
 					$statecheckrule = new PluginStatecheckRule;
@@ -243,7 +243,7 @@ function plugin_pre_item_statecheck($item)
 //	retrieve the value of item's state
 	$targetstates_id = 0;
 	$querystate = "select statetable from glpi_plugin_statecheck_tables";
-	if ($resultstate=$DB->query($querystate)) {
+	if ($resultstate=$DB->doQuery($querystate)) {
 		while ($datastate=$DB->fetchAssoc($resultstate)) {
 			$statefield = substr($datastate['statetable'],5)."_id";
 			if (is_array($item)) {
@@ -270,7 +270,7 @@ function plugin_pre_item_statecheck($item)
 			"and frontname = '$frontname' ".
 			"and (plugin_statecheck_targetstates_id = $targetstates_id or plugin_statecheck_targetstates_id = 0)".
 			"and is_active = true";
-	if ($resultrule=$DB->query($queryrule)) {
+	if ($resultrule=$DB->doQuery($queryrule)) {
 		if (is_array($item)) {
 			$item['hookerror'] = false;
 			if (isset($item['hookmessage']))
@@ -291,7 +291,7 @@ function plugin_pre_item_statecheck($item)
 			$criteriacheck = true;
 			$querycriteria = "select * from glpi_plugin_statecheck_rulecriterias ".
 							"where plugin_statecheck_rules_id = $rules_id ";
-			if ($resultcriteria=$DB->query($querycriteria)) {
+			if ($resultcriteria=$DB->doQuery($querycriteria)) {
 				while ($datacriteria=$DB->fetchAssoc($resultcriteria)) {
 					switch ($datacriteria['condition']) {
 						case Rule::PATTERN_IS :
@@ -411,7 +411,7 @@ function plugin_pre_item_statecheck($item)
 //				retrieve the fields to check on behalf of this rule and check the condition of the current field value
 				$queryaction = "select * from glpi_plugin_statecheck_ruleactions ".
 							"where plugin_statecheck_rules_id = $rules_id ";
-				if ($resultaction=$DB->query($queryaction)) {
+				if ($resultaction=$DB->doQuery($queryaction)) {
 //					get field name and label
 					$ruleaction = new PluginStatecheckRuleAction;
 					$fields = $ruleaction->getActionFields($table_id);

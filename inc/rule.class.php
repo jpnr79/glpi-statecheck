@@ -1573,14 +1573,14 @@ class PluginStatecheckRule extends Rule {
          $sql = "DELETE
                  FROM `".getTableForItemType($this->ruleactionclass)."`
                  WHERE `".$this->rules_id_field."` = '".$this->fields['id']."'";
-         $DB->query($sql);
+         $DB->doQuery($sql);
       }
 
       if (!empty($this->rulecriteriaclass)) {
          $sql = "DELETE
                  FROM `".getTableForItemType($this->rulecriteriaclass)."`
                  WHERE `".$this->rules_id_field."` = '".$this->fields['id']."'";
-         $DB->query($sql);
+         $DB->doQuery($sql);
       }
    }
 
@@ -2172,7 +2172,7 @@ class PluginStatecheckRule extends Rule {
       global $DB;
 	  $query = "select * from glpi_plugin_statecheck_tables where id = ".$rule->fields["plugin_statecheck_tables_id"];
 
-      if ($result=$DB->query($query)) {
+      if ($result=$DB->doQuery($query)) {
 		$data=$DB->fetchAssoc($result);
 		return $data['stateclass'];
       }
@@ -2399,7 +2399,7 @@ class PluginStatecheckRule extends Rule {
 	$query = "select * from glpi_plugin_statecheck_tables where id = ".$table_id;
 
 	if ($table_id > -1 
-	&& $result=$DB->query($query)) {
+	&& $result=$DB->doQuery($query)) {
 		$data=$DB->fetchAssoc($result);
 		$class = new $data['class'];
 		// get the table of searchable fields ('field'), containing the field description in current language ('name')
@@ -2408,7 +2408,7 @@ class PluginStatecheckRule extends Rule {
 		$tablename = $data['name'];
 		$query = "SHOW COLUMNS FROM ".$tablename;
 
-		if ($result=$DB->query($query)) {
+		if ($result=$DB->doQuery($query)) {
 			while ($data=$DB->fetchAssoc($result)) {
 				// only searchable fields can be used
 				foreach ($tab as $index => $tabelem) {
@@ -2696,7 +2696,7 @@ class PluginStatecheckRule extends Rule {
    /**
     * Add more criteria specific to this type of rule
    **/
-   static function addMoreCriteria() {
+   static function addMoreCriteria($criterion = '') {
       return [];
    }
 
@@ -2757,7 +2757,7 @@ class PluginStatecheckRule extends Rule {
                    SET `$valfield` = '".$item->input['_replace_by']."'
                    WHERE `$valfield` = '".$item->getField('id')."'
                          AND `$fieldfield` LIKE '$field'";
-         $DB->query($query);
+         $DB->doQuery($query);
 
       } else {
          $query = "SELECT `$fieldid`
@@ -2765,7 +2765,7 @@ class PluginStatecheckRule extends Rule {
                    WHERE `$valfield` = '".$item->getField('id')."'
                          AND `$fieldfield` LIKE '$field'";
 
-         if ($result = $DB->query($query)) {
+         if ($result = $DB->doQuery($query)) {
             if ($DB->numrows($result) > 0) {
                $input['is_active'] = 0;
 
@@ -2964,7 +2964,7 @@ function plugin_statecheck_renderfields($classname) {
 							left join glpi_plugin_statecheck_rulecriterias on glpi_plugin_statecheck_rules.id = glpi_plugin_statecheck_rulecriterias.plugin_statecheck_rules_id
 							where  class = '".$classname."' 
 							and is_active = true";
-			if ($resultfields=$DB->query($queryfields)) {
+			if ($resultfields=$DB->doQuery($queryfields)) {
 //				get the list of fields on which the statecheck rules depend :
 				$statefields = [];
 				$mainstatefield = "";
@@ -2984,7 +2984,22 @@ function plugin_statecheck_renderfields($classname) {
                   }
 				}
 				$url = Plugin::getWebDir('statecheck')."/ajax/statecheckfields.php?classname=".urlencode($classname)."&mainstatefield=".urlencode($mainstatefield);
-				echo "<link rel='stylesheet' type='text/css' href='".Plugin::getWebDir('statecheck')."/style.css' media=''>\n";
+#				echo "<link rel='stylesheet' type='text/css' href='".Plugin::getWebDir('statecheck')."/style.css' media=''>\n";
+//              define red border style
+				echo "<style>\n";
+				echo ".statecheck-warning,.select2-choice.statecheck-warning {\n";
+				switch(substr(GLPI_VERSION, 0, 2)) {
+                  case "10":
+//						take the "a" html element just before
+                     echo "border-color: red !important;\n";
+                     break;
+                  case "11":
+                     echo "--tblr-border-color: red !important;\n";
+                     echo "border-color: var(--tblr-border-color);\n";
+                     break;
+				}
+                echo "}\n";
+				echo "</style>\n";
 				echo "<script type='text/javascript' >\n";
 //				echo "Components.utils.import('resource://gre/modules/Console.jsm');";
 				echo 'function getstatecheckfields() {';
@@ -3021,7 +3036,8 @@ function plugin_statecheck_renderfields($classname) {
 //						break;
 //					case "9.3":
 //						take the "span" html element just after, with role "combobox"
-						echo 'if (element && element.type != "text" && element.type != "textarea") {element = element.nextSibling.querySelectorAll("[role=combobox]")[0];};';
+                echo 'if (element && element.type == "textarea") {element = element.nextSibling;}';
+                echo 'else if (element && element.type != "text" && element.type != "textarea") {element = element.nextSibling.querySelectorAll("[role=combobox]")[0];};';
 //						break;
 //				}
 ///				change css class of "statechecked" fields
@@ -3046,7 +3062,8 @@ function plugin_statecheck_renderfields($classname) {
 //						break;
 //					case "9.3":
 //						take the "span" html element just after, with role "combobox"
-						echo 'if (element && element.type != "text" && element.type != "textarea") {element = element.nextSibling.querySelectorAll("[role=combobox]")[0]};';
+                echo 'if (element && element.type == "textarea") {element = element.nextSibling;}';
+                echo 'else if (element && element.type != "text" && element.type != "textarea") {element = element.nextSibling.querySelectorAll("[role=combobox]")[0];};';
 //						break;
 //				}
 //				add the class "statecheck-warning" (defined in style.css file) to change the display of the field
