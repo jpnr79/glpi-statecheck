@@ -2990,10 +2990,11 @@ function plugin_statecheck_renderfields($classname) {
 				echo ".statecheck-warning,.select2-choice.statecheck-warning {\n";
 				switch(substr(GLPI_VERSION, 0, 2)) {
                   case "10":
-//						take the "a" html element just before
+//				      use direct color
                      echo "border-color: red !important;\n";
                      break;
                   case "11":
+//				      use variable
                      echo "--tblr-border-color: red !important;\n";
                      echo "border-color: var(--tblr-border-color);\n";
                      break;
@@ -3028,19 +3029,20 @@ function plugin_statecheck_renderfields($classname) {
 //				foreach tuple returned in the JSON response, find the DOM element
 				echo '$.each(response, function(i, row){';
 				echo 'var element = document.getElementsByName(row.field)[0];';
+//				but for textarea,
+				switch(substr(GLPI_VERSION, 0, 2)) {
+					case "10":
+//						keep the element
+                        echo 'if (element && element.type == "textarea") {;}';
+						break;
+					case "11":
+//						take the next sibling element
+                        echo 'if (element && element.type == "textarea") {element = element.nextSibling;}';
+						break;
+				}
 //				but for dropdown,
-//				switch(substr(GLPI_VERSION, 0, 3)) {
-//					case "9.2":
-//						take the "a" html element just before
-//						echo 'if (element && element.getAttribute("type") != "text") {element = element.previousSibling.getElementsByTagName("a")[0]};';
-//						break;
-//					case "9.3":
-//						take the "span" html element just after, with role "combobox"
-                echo 'if (element && element.type == "textarea") {element = element.nextSibling;}';
                 echo 'else if (element && element.type != "text" && element.type != "textarea") {element = element.nextSibling.querySelectorAll("[role=combobox]")[0];};';
-//						break;
-//				}
-///				change css class of "statechecked" fields
+//				change css class of "statechecked" fields
 				echo 'if (element) {if(element.className) {element.className += " statecheck-warning";} else {element.className = "statecheck-warning";}}';
 				echo '})';
 				echo '}';
@@ -3054,15 +3056,18 @@ function plugin_statecheck_renderfields($classname) {
 //				foreach tuple returned in the JSON response, find the DOM element
 				echo '$.each(response, function(i, row){';
 				echo 'var element = document.getElementsByName(row.field)[0];';
+//				but for textarea,
+				switch(substr(GLPI_VERSION, 0, 2)) {
+					case "10":
+//						keep the element
+                        echo 'if (element && element.type == "textarea") {;}';
+						break;
+					case "11":
+//						take the next sibling element
+                        echo 'if (element && element.type == "textarea") {element = element.nextSibling;}';
+						break;
+				}
 //				but for dropdown,
-//				switch(substr(GLPI_VERSION, 0, 3)) {
-//					case "9.2":
-//						take the "a" html element just before
-//						echo 'if (element && element.getAttribute("type") != "text") {element = element.previousSibling.getElementsByTagName("a")[0]};';
-//						break;
-//					case "9.3":
-//						take the "span" html element just after, with role "combobox"
-                echo 'if (element && element.type == "textarea") {element = element.nextSibling;}';
                 echo 'else if (element && element.type != "text" && element.type != "textarea") {element = element.nextSibling.querySelectorAll("[role=combobox]")[0];};';
 //						break;
 //				}

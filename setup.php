@@ -24,6 +24,13 @@
  --------------------------------------------------------------------------
  */
 
+define('PLUGIN_STATECHECK_VERSION', '2.4.6');
+
+// Minimal GLPI version, inclusive
+define('PLUGIN_STATECHECK_MIN_GLPI', '10.0.17');
+// Maximum GLPI version, exclusive
+define('PLUGIN_STATECHECK_MAX_GLPI', '11.0.99');
+
 // Init the hooks of the plugins -Needed
 function plugin_init_statecheck() {
    global $PLUGIN_HOOKS, $DB;
@@ -97,14 +104,14 @@ function plugin_version_statecheck() {
 
    return [
       'name' => _n('Statecheck Rule', 'Statecheck Rules', 2, 'statecheck'),
-      'version' => '2.4.5',
+      'version' => PLUGIN_STATECHECK_VERSION,
       'author'  => "Eric Feron",
       'license' => 'GPLv2+',
       'homepage'=> 'https://github.com/ericferon/glpi-statecheck',
       'requirements' => [
          'glpi' => [
-            'min' => '10.0.17',
-            'max' => '11.0.99'
+            'min' => PLUGIN_STATECHECK_MIN_GLPI,
+            'max' => PLUGIN_STATECHECK_MAX_GLPI
          ]
       ]
    ];
@@ -113,13 +120,6 @@ function plugin_version_statecheck() {
 
 // Optional : check prerequisites before install : may print errors or add to message after redirect
 function plugin_statecheck_check_prerequisites() {
-   if (version_compare(GLPI_VERSION, '10.0', 'lt')
-       || version_compare(GLPI_VERSION, '11.9', 'ge')) {
-      if (method_exists('Plugin', 'messageIncompatible')) {
-         echo Plugin::messageIncompatible('core', '11.0');
-      }
-      return false;
-   }
    return true;
 }
 
