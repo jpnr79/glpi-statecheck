@@ -24,7 +24,7 @@
  --------------------------------------------------------------------------
  */
 
-define('PLUGIN_STATECHECK_VERSION', '2.4.6');
+define('PLUGIN_STATECHECK_VERSION', '2.4.7');
 
 // Minimal GLPI version, inclusive
 define('PLUGIN_STATECHECK_MIN_GLPI', '10.0.17');
