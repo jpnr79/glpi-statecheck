@@ -526,7 +526,7 @@ function plugin_pre_item_statecheck($item)
 //				cast($item,get_class($itemobj));
 				NotificationEvent::raiseEvent($itemtype."_".$targetstates_id.$eventtype,$itemobj);
 			} else {
-				if ($item[hookerror])
+				if ($item['hookerror'])
 					$eventtype = "_failure";
 				else
 					$eventtype = "_success";

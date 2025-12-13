@@ -573,7 +573,7 @@ class PluginStatecheckRule extends Rule {
             if (isset($values['itemtype']) && !empty($values['itemtype'])) {
                $options['value'] = $values[$field];
                $options['name']  = $name;
-               $rule             = new static();
+               $rule             = new self();
                return $rule->dropdownStatecheckRulesMatch($options);
             }
             break;
@@ -1192,6 +1192,7 @@ class PluginStatecheckRule extends Rule {
             $output["_rule_process"] = true;
          }
       }
+      return $output;
    }
 
 
@@ -1236,6 +1237,7 @@ class PluginStatecheckRule extends Rule {
             }
          }
       }
+      return $options;
    }
 
 
@@ -1335,7 +1337,8 @@ class PluginStatecheckRule extends Rule {
          $check_results[$criteria->fields["id"]]["value"]  = $criteria->fields["pattern"];
          $check_results[$criteria->fields["id"]]["result"] = ((!$result)?0:1);
          $check_results[$criteria->fields["id"]]["id"]     = $criteria->fields["id"];
-      }
+        }
+        return (count($check_results) > 0);
    }
 
 
@@ -2836,11 +2839,11 @@ class PluginStatecheckRule extends Rule {
                   }
                   if (count($types)) {
                      $nb = $dbu->countElementsInTable(['glpi_rules', 'glpi_ruleactions'],[
-                           'glpi_ruleactions.rules_id'   => new \QueryExpression(Db::quoteName('glpi_rules.id')),
-                           'glpi_rules.sub_type'         => $types,
-                           'glpi_ruleactions.field'      => 'entities_id',
-                           'glpi_ruleactions.value'      => $item->getID()
-                        ]);
+                              'glpi_ruleactions.rules_id'   => new \QueryExpression(DB::quoteName('glpi_rules.id')),
+                              'glpi_rules.sub_type'         => $types,
+                              'glpi_ruleactions.field'      => 'entities_id',
+                              'glpi_ruleactions.value'      => $item->getID()
+                           ]);
                   }
                }
                return self::createTabEntry(self::getTypeName(Session::getPluralNumber()), $nb);

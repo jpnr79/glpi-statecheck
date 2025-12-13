@@ -29,7 +29,24 @@ if (!defined('GLPI_ROOT')){
 }
 
 // Class NotificationTarget
+/**
+ * Static-analysis-only annotations:
+ * @property mixed $raiseevent
+ * @property array $data
+ * @property mixed $obj
+ * @property array $tag_descriptions
+ * @method void addTarget(...$a)
+ * @method string getDistinctUserSql()
+ * @method string getJoinProfileSql()
+ * @method array addToAddressesList(...$a)
+ * @method array getAllEvents()
+ * @method array addTagToList(...$a)
+ */
 class PluginStatecheckNotificationTargetRule extends NotificationTarget {
+   public $raiseevent;
+   public $data = [];
+   public $obj;
+   public $tag_descriptions = [];
 
    const STATECHECK_LOGGED_GROUP = 2300;
    const STATECHECK_LOGGED_USER = 2301;

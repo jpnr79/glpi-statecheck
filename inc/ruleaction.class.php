@@ -83,7 +83,7 @@ class PluginStatecheckRuleAction extends RuleAction {
    }
 
 
-   function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
+   function getTabNameForItem(CommonGLPI $item, $withtemplate=0): array|string {
 
       if ($item->getType()=='PluginStatecheckRule') {
          return self::getTypeName(2);
@@ -275,7 +275,7 @@ class PluginStatecheckRuleAction extends RuleAction {
             }
             break;
 
-         case 'pattern' :
+            case 'pattern' :
             if (!isset($values["field"]) || !isset($values["action_type"])) {
                return NOT_AVAILABLE;
             }
@@ -284,8 +284,8 @@ class PluginStatecheckRuleAction extends RuleAction {
                 && !empty($values['plugin_statecheck_rules_id'])
                 && $generic_rule->getFromDB($values['plugin_statecheck_rules_id'])) {
                if ($rule = getItemForItemtype($generic_rule->fields["sub_type"])) {
-                  /// TODO review it : need to pass display param and others...
-                  return $this->displayActionSelectPattern($values);
+                    /// TODO review it : need to pass display param and others...
+                    return (new self())->displayActionSelectPattern($values);
                }
             }
             break;

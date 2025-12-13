@@ -86,7 +86,7 @@ class PluginStatecheckRuleCriteria extends CommonDBChild {
    }
 
 
-   function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
+   function getTabNameForItem(CommonGLPI $item, $withtemplate=0): array|string {
 
       if ($item->getType()=='PluginStatecheckRule') {
          return self::getTypeName(2);
@@ -219,10 +219,12 @@ class PluginStatecheckRuleCriteria extends CommonDBChild {
             if (isset($values['plugin_statecheck_rules_id'])
                 && !empty($values['plugin_statecheck_rules_id'])
                 && $generic_rule->getFromDB($values['plugin_statecheck_rules_id'])) {
-               if (isset($values['criteria']) && !empty($values['criteria'])) {
-                  $criterion = $values['criteria'];
+               if ($rule = getItemForItemtype($generic_rule->fields["sub_type"])) {
+                  if (isset($values['criteria']) && !empty($values['criteria'])) {
+                     $criterion = $values['criteria'];
+                  }
+                  return $rule->getConditionByID($values[$field], $generic_rule->fields["sub_type"], $criterion);
                }
-               return $rule->getConditionByID($values[$field], $generic_rule->fields["sub_type"], $criterion);
             }
             break;
 
@@ -279,12 +281,14 @@ class PluginStatecheckRuleCriteria extends CommonDBChild {
             if (isset($values['plugin_statecheck_rules_id'])
                 && !empty($values['plugin_statecheck_rules_id'])
                 && $generic_rule->getFromDB($values['plugin_statecheck_rules_id'])) {
-               if (isset($values['criteria']) && !empty($values['criteria'])) {
-                  $options['criterion'] = $values['criteria'];
+               if ($rule = getItemForItemtype($generic_rule->fields["sub_type"])) {
+                  if (isset($values['criteria']) && !empty($values['criteria'])) {
+                     $options['criterion'] = $values['criteria'];
+                  }
+                  $options['value'] = $values[$field];
+                  $options['name']  = $name;
+                  return $rule->dropdownConditions($generic_rule->fields["sub_type"], $options);
                }
-               $options['value'] = $values[$field];
-               $options['name']  = $name;
-               return $rule->dropdownConditions($generic_rule->fields["sub_type"], $options);
             }
             break;
 

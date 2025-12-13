@@ -137,31 +137,32 @@ function plugin_statecheck_uninstall() {
 	foreach($tables_glpi as $table_glpi)
       $DB->query("DELETE FROM `$table_glpi` WHERE `itemtype` LIKE 'PluginStatecheck%' ;");
 
-	//notifications
-		$notif = new Notification();
-
-	$options = ['itemtype' => 'PluginStatecheckRule',
-                    'event'    => 'success',
-					'FIELDS'   => 'id'];
-	foreach ($DB->request('glpi_notifications', $options) as $data) {
+	$options = ['FROM' => 'glpi_notifications',
+                    'WHERE' => ['itemtype' => 'PluginStatecheckRule',
+                                'event' => 'success'],
+                    'SELECT' => ['id']];
+	foreach ($DB->request($options) as $data) {
 		$notif->delete($data);
 	}
-	$options = ['itemtype' => 'PluginStatecheckRule',
-                    'event'    => 'failure',
-                    'FIELDS'   => 'id'];
-	foreach ($DB->request('glpi_notifications', $options) as $data) {
+	$options = ['FROM' => 'glpi_notifications',
+                    'WHERE' => ['itemtype' => 'PluginStatecheckRule',
+                                'event' => 'failure'],
+                    'SELECT' => ['id']];
+	foreach ($DB->request($options) as $data) {
 		$notif->delete($data);
 	}
 	//templates
 	$template = new NotificationTemplate();
 	$translation = new NotificationTemplateTranslation();
-	$options = ['itemtype' => 'PluginStatecheckRule',
-                    'FIELDS'   => 'id'];
-	foreach ($DB->request('glpi_notificationtemplates', $options) as $data) {
-		$options_template = ['notificationtemplates_id' => $data['id'],
-                    'FIELDS'   => 'id'];
+	$options = ['FROM' => 'glpi_notificationtemplates',
+                    'WHERE' => ['itemtype' => 'PluginStatecheckRule'],
+                    'SELECT' => ['id']];
+	foreach ($DB->request($options) as $data) {
+		$options_template = ['FROM' => 'glpi_notificationtemplatetranslations',
+                             'WHERE' => ['notificationtemplates_id' => $data['id']],
+                             'SELECT' => ['id']];
 
-		foreach ($DB->request('glpi_notificationtemplatetranslations', $options_template) as $data_template) {
+		foreach ($DB->request($options_template) as $data_template) {
             $translation->delete($data_template);
 		}
 		$template->delete($data);
@@ -185,15 +186,18 @@ function plugin_statecheck_uninstall() {
 function plugin_statecheck_getDatabaseRelations() {
 
    $plugin = new Plugin();
-   if ($plugin->isActivated("statecheck"))
-		return ["glpi_plugin_statecheck_rules"=>["glpi_plugin_statecheck_rulecriterias"=>"plugin_statecheck_rules_id"],
-					"glpi_plugin_statecheck_rules"=>["glpi_plugin_statecheck_ruleactions"=>"plugin_statecheck_rules_id"],
-					 "glpi_plugin_statecheck_tables"=>["glpi_plugin_statecheck_rules"=>"plugin_statecheck_tables_id"],
-					 "glpi_plugin_statecheck_targetstates"=>["glpi_plugin_statecheck_rules"=>"plugin_statecheck_targetstates_id"],
-					 "glpi_entities"=>["glpi_plugin_statecheck_rules"=>"entities_id"],
-					 "glpi_groups"=>["glpi_plugin_statecheck_rules"=>"groups_id"],
-					 "glpi_users"=>["glpi_plugin_statecheck_rules"=>"users_id"]
-					 ];
+    if ($plugin->isActivated("statecheck"))
+            return [
+                "glpi_plugin_statecheck_rules" => [
+                    "glpi_plugin_statecheck_rulecriterias" => "plugin_statecheck_rules_id",
+                    "glpi_plugin_statecheck_ruleactions"  => "plugin_statecheck_rules_id",
+                ],
+                "glpi_plugin_statecheck_tables" => ["glpi_plugin_statecheck_rules" => "plugin_statecheck_tables_id"],
+                "glpi_plugin_statecheck_targetstates" => ["glpi_plugin_statecheck_rules" => "plugin_statecheck_targetstates_id"],
+                "glpi_entities" => ["glpi_plugin_statecheck_rules" => "entities_id"],
+                "glpi_groups" => ["glpi_plugin_statecheck_rules" => "groups_id"],
+                "glpi_users" => ["glpi_plugin_statecheck_rules" => "users_id"]
+            ];
    else
       return [];
 }
