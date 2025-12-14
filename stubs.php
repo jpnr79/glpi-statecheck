@@ -1,6 +1,6 @@
 <?php
 // Lightweight statecheck-specific stubs to augment global dev stubs for static analysis
-require_once __DIR__ . '/../dev_global_stubs.php';
+// require_once __DIR__ . '/../dev_global_stubs.php';
 
 if (!class_exists('PluginStatecheckRule')) {
     class PluginStatecheckRule extends \CommonDBTM {

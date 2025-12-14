@@ -4,18 +4,18 @@
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `glpi_plugin_statecheck_rules`;
 CREATE  TABLE `glpi_plugin_statecheck_rules` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'Internal ID' ,
-  `entities_id` INT(11) NOT NULL default '0',
+  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Internal ID' ,
+  `entities_id` INT(11) UNSIGNED NOT NULL default '0',
   `name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `plugin_statecheck_tables_id` INT(11) NOT NULL default '0',
-  `plugin_statecheck_targetstates_id` INT(11) NOT NULL default '0',
+  `plugin_statecheck_tables_id` INT(11) UNSIGNED NOT NULL default '0',
+  `plugin_statecheck_targetstates_id` INT(11) UNSIGNED NOT NULL default '0',
   `ranking` int(11) NOT NULL DEFAULT '0',
   `match` char(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'see define.php *_MATCHING constant',
   `is_active` tinyint(1) NOT NULL DEFAULT '1',
   `is_active_warn_popup` tinyint(1) NOT NULL DEFAULT '1',
   `comment` text COLLATE utf8mb4_unicode_ci,
-  `successnotifications_id` INT(11) NOT NULL default '0' COMMENT 'notification in case of success',
-  `failurenotifications_id` INT(11) NOT NULL default '0' COMMENT 'notification in case of failure',
+  `successnotifications_id` INT(11) UNSIGNED NOT NULL default '0' COMMENT 'notification in case of success',
+  `failurenotifications_id` INT(11) UNSIGNED NOT NULL default '0' COMMENT 'notification in case of failure',
   `date_mod` datetime DEFAULT NULL,
   `is_recursive` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
@@ -34,7 +34,7 @@ DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ;
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `glpi_plugin_statecheck_tables`;
 CREATE  TABLE `glpi_plugin_statecheck_tables` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT ,
+  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT ,
   `name` VARCHAR(45) NOT NULL ,
   `comment` VARCHAR(45) NOT NULL ,
   `statetable` VARCHAR(45) NOT NULL ,
@@ -50,10 +50,10 @@ DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 -- ----------------------------------------------------------------
 DROP TABLE IF EXISTS `glpi_plugin_statecheck_rulecriterias`;
 CREATE TABLE `glpi_plugin_statecheck_rulecriterias` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `plugin_statecheck_rules_id` int(11) NOT NULL DEFAULT '0',
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `plugin_statecheck_rules_id` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `criteria` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `condition` int(11) NOT NULL DEFAULT '0' COMMENT 'see define.php PATTERN_* and REGEX_* constant',
+  `condition` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'see define.php PATTERN_* and REGEX_* constant',
   `pattern` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `plugin_statecheck_rules_id` (`plugin_statecheck_rules_id`),
@@ -67,8 +67,8 @@ DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ;
 -- ----------------------------------------------------------------
 DROP TABLE IF EXISTS `glpi_plugin_statecheck_ruleactions`;
 CREATE TABLE `glpi_plugin_statecheck_ruleactions` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `plugin_statecheck_rules_id` int(11) NOT NULL DEFAULT '0',
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `plugin_statecheck_rules_id` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `action_type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'VALUE IN (assign, regex_result, append_regex_result, affectbyip, affectbyfqdn, affectbymac)',
   `field` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `value` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -82,11 +82,11 @@ DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ;
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `glpi_plugin_statecheck_profiles`;
 CREATE TABLE `glpi_plugin_statecheck_profiles` (
-	`id` INT(11) NOT NULL AUTO_INCREMENT,
-	`profiles_id` int(11) NOT NULL default '0' COMMENT 'RELATION to glpi_profiles (id)',
+  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `profiles_id` int(11) UNSIGNED NOT NULL default '0' COMMENT 'RELATION to glpi_profiles (id)',
 	`statecheck` char(1) collate utf8mb4_unicode_ci default NULL,
 	`open_ticket` char(1) collate utf8mb4_unicode_ci default NULL,
-	PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`id`),
 	KEY `profiles_id` (`profiles_id`)
 )  
 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
